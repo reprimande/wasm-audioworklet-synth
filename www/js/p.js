@@ -3,6 +3,8 @@ class MyProcessor extends AudioWorkletProcessor {
     super()
     this.port.onmessage = e => {
       WebAssembly.instantiate(e.data).then(w => {
+        console.log(w.instance.exports)
+        console.log(w.instance.exports.memory.buffer)
         this._process = w.instance.exports.process
       })
     }
