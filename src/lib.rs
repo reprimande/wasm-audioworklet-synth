@@ -7,11 +7,6 @@ mod tests {
 }
 
 #[no_mangle]
-pub extern fn process(x: u32) -> u32 {
-    x * x
-}
-
-#[no_mangle]
-pub extern fn foo(x: u32) -> u32 {
-    x * x
+pub extern fn process(x: f64, g: f64) -> f64 {
+    x * g
 }

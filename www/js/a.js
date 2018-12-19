@@ -1,16 +1,12 @@
 const ctx = AudioContext()
-ctx.audioWorklet.addModule('js/p.js').then(() => {
+ctx.audioWorklet.addModule('js/p.js?t=' + new Date().getTime()).then(() => {
   const n = new AudioWorkletNode(ctx, 'my-processor')
   const o = new OscillatorNode(ctx)
 
   o.connect(n).connect(ctx.destination)
   o.start()
 
-  n.port.onmessage = e => {
-    console.log('onmessage node:', e)
-  }
-
-  fetch('wasm/wasm_audioworklet.wasm')
+  fetch('wasm/wasm_audioworklet.wasm?t=' + new Date().getTime())
     .then(r => r.arrayBuffer())
     .then(r => n.port.postMessage(r))
 })
