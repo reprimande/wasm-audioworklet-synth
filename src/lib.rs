@@ -58,7 +58,7 @@ impl Synth {
         for i in 0..size {
             let v = self.sawtooth_wave(self.frequency, self.wave_phase);
             out_buf[i] = v as f32;
-            self.wave_phase = (self.wave_phase + 1) % 44100;
+            self.wave_phase = self.wave_phase + 1;
         }
         let filtered = self.low_pass_filter(out_buf);
         for i in 0..size {
@@ -67,7 +67,7 @@ impl Synth {
         for i in 0..size {
             let t = (self.env_time + (i as i64)) as f64;
             if t < dur {
-                let g = self.gain * self.env_val(i);
+                let g = self.gain * self.env_val(i) * 0.0001;
                 out_buf[i] *= g as f32;
             } else {
                 out_buf[i] = 0.0;
@@ -87,6 +87,7 @@ impl Synth {
         let t = (self.env_time + offset as i64) as f64;
         match t {
             0.0 => 0.0,
+            x if x >= dur => 0.0,
             _ => dur - t / t,
         }
     }
@@ -110,7 +111,7 @@ impl Synth {
         };
 
         for i in 0..input.len() {
-            let cutoff = self.cutoff + self.amount * 1000.0 * self.env_val(i);
+            let cutoff = self.cutoff + self.amount * 1000.0; // * self.env_val(i);
 
             let omega = 2.0 * (PI as f32) * (cutoff as f32) / 44100.0;
             let alpha = omega.sin() / (2.0 * (_q as f32));

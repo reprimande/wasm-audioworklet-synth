@@ -23,7 +23,7 @@ ctx.audioWorklet.addModule('js/p.js?t=' + new Date().getTime()).then(() => {
 
   const q = document.getElementById('q')
   q.addEventListener('input', e => {
-    n.parameters.get('q').value = e.target.value * 0.01
+    n.parameters.get('q').value = e.target.value * 0.5
   })
 
   const amount = document.getElementById('amount')
@@ -33,7 +33,7 @@ ctx.audioWorklet.addModule('js/p.js?t=' + new Date().getTime()).then(() => {
 
   const decay = document.getElementById('decay')
   decay.addEventListener('input', e => {
-    n.parameters.get('decay').value = e.target.value * 0.02
+    n.parameters.get('decay').value = e.target.value * 0.01
   })
 
   const gain = document.getElementById('gain')
