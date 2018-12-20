@@ -3,9 +3,20 @@ class MyProcessor extends AudioWorkletProcessor {
     super()
     this.port.onmessage = e => {
       WebAssembly.instantiate(e.data).then(w => {
-        console.log(w.instance.exports)
-        console.log(w.instance.exports.memory.buffer)
         this._wasm = w.instance
+        this._size = 128
+        this._inPtr = this._wasm.exports.alloc(this._size)
+        this._outPtr = this._wasm.exports.alloc(this._size)
+        this._inBuf = new Float32Array(
+          this._wasm.exports.memory.buffer,
+          this._inPtr,
+          this._size
+        )
+        this._outBuf = new Float32Array(
+          this._wasm.exports.memory.buffer,
+          this._outPtr,
+          this._size
+        )
       })
     }
   }
@@ -21,30 +32,9 @@ class MyProcessor extends AudioWorkletProcessor {
     for (let channel = 0; channel < input.length; ++channel) {
       let inputChannel = input[channel]
       let outputChannel = output[channel]
-      const size = inputChannel.length
-      const inPtr = this._wasm.exports.alloc(size)
-      const outPtr = this._wasm.exports.alloc(size)
-      const inBuf = new Float32Array(
-        this._wasm.exports.memory.buffer,
-        inPtr,
-        size
-      )
-      const outBuf = new Float32Array(
-        this._wasm.exports.memory.buffer,
-        outPtr,
-        size
-      )
-      for (let i = 0; i < size; i++) {
-        inBuf[i] = inputChannel[i]
-      }
-      this._wasm.exports.process_array(inPtr, outPtr, size, 0.5)
-      for (let i = 0; i < size; i++) {
-        outputChannel[i] = outBuf[i]
-      }
-
-      // for (let i = 0; i < inputChannel.length; ++i) {
-      //   outputChannel[i] = this._wasm.exports.process(inputChannel[i], 0.1)
-      // }
+      this._inBuf.set(inputChannel)
+      this._wasm.exports.process(this._inPtr, this._outPtr, this._size, 0.1)
+      outputChannel.set(this._outBuf)
     }
 
     return true
