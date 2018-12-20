@@ -6,11 +6,23 @@ class MyProcessor extends AudioWorkletProcessor {
         defaultValue: 440.0
       },
       {
-        name: 'onoff',
-        defaultValue: 0
+        name: 'gain',
+        defaultValue: 0.5
       },
       {
-        name: 'gain',
+        name: 'cutoff',
+        defaultValue: 2000
+      },
+      {
+        name: 'q',
+        defaultValue: 0.5
+      },
+      {
+        name: 'decay',
+        defaultValue: 0.5
+      },
+      {
+        name: 'amount',
         defaultValue: 0.5
       }
     ]
@@ -48,6 +60,10 @@ class MyProcessor extends AudioWorkletProcessor {
     }
     this._wasm.exports.set_frequency(parameters.freq[0])
     this._wasm.exports.set_gain(parameters.gain[0])
+    this._wasm.exports.set_cutoff(parameters.cutoff[0])
+    this._wasm.exports.set_q(parameters.q[0])
+    this._wasm.exports.set_decay(parameters.decay[0])
+    this._wasm.exports.set_amount(parameters.amount[0])
 
     let output = outputs[0]
     for (let channel = 0; channel < output.length; ++channel) {

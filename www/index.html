@@ -5,9 +5,17 @@
   </head>
   <body>
     <div>
-      <webaudio-keyboard id="key" width="400" height="100" min="48" keys="25"></webaudio-keyboard>
-      <webaudio-knob id="gain" diameter="48"></webaudio-knob>
+      <div>
+        <webaudio-keyboard id="key" width="600" height="100" min="24" keys="36"></webaudio-keyboard>
+      </div>
+      <div>
+        <webaudio-knob id="cutoff" diameter="48" min="0" max="10000"></webaudio-knob>
+        <webaudio-knob id="q" diameter="48"></webaudio-knob>
+        <webaudio-knob id="amount" diameter="48"></webaudio-knob>
+        <webaudio-knob id="decay" diameter="48"></webaudio-knob>
+        <webaudio-knob id="gain" diameter="48"></webaudio-knob>
+      </div>
     </dic>
-    <script src="js/a.js"></script>
+    <script src="js/a.js?t=10"></script>
   </body>
 </html>

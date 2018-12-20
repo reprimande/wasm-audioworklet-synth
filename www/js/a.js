@@ -1,9 +1,7 @@
 const ctx = new AudioContext()
 ctx.audioWorklet.addModule('js/p.js?t=' + new Date().getTime()).then(() => {
   const n = new AudioWorkletNode(ctx, 'my-processor')
-  const o = new OscillatorNode(ctx)
-  o.connect(n).connect(ctx.destination)
-  o.start()
+  n.connect(ctx.destination)
 
   fetch('wasm/wasm_audioworklet.wasm?t=' + new Date().getTime())
     .then(r => r.arrayBuffer())
@@ -16,6 +14,26 @@ ctx.audioWorklet.addModule('js/p.js?t=' + new Date().getTime()).then(() => {
     if (e.note[0] === 1) {
       n.port.postMessage({ type: 'trigger' })
     }
+  })
+
+  const cutoff = document.getElementById('cutoff')
+  cutoff.addEventListener('input', e => {
+    n.parameters.get('cutoff').value = e.target.value
+  })
+
+  const q = document.getElementById('q')
+  q.addEventListener('input', e => {
+    n.parameters.get('q').value = e.target.value * 0.01
+  })
+
+  const amount = document.getElementById('amount')
+  amount.addEventListener('input', e => {
+    n.parameters.get('amount').value = e.target.value * 0.01
+  })
+
+  const decay = document.getElementById('decay')
+  decay.addEventListener('input', e => {
+    n.parameters.get('decay').value = e.target.value * 0.02
   })
 
   const gain = document.getElementById('gain')
