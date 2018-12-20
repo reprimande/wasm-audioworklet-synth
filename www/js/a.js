@@ -1,4 +1,4 @@
-const ctx = AudioContext()
+const ctx = new AudioContext()
 ctx.audioWorklet.addModule('js/p.js?t=' + new Date().getTime()).then(() => {
   const n = new AudioWorkletNode(ctx, 'my-processor')
   const o = new OscillatorNode(ctx)
