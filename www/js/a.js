@@ -13,7 +13,9 @@ ctx.audioWorklet.addModule('js/p.js?t=' + new Date().getTime()).then(() => {
   key.addEventListener('change', e => {
     n.parameters.get('freq').value =
       440.0 * Math.pow(2.0, (e.note[1] - 69) / 12)
-    n.parameters.get('onoff').value = e.note[0]
+    if (e.note[0] === 1) {
+      n.port.postMessage({ type: 'trigger' })
+    }
   })
 
   const gain = document.getElementById('gain')

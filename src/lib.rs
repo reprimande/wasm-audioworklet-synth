@@ -1,3 +1,8 @@
+#[macro_use]
+extern crate lazy_static;
+
+use std::sync::Mutex;
+
 #[no_mangle]
 pub extern "C" fn alloc(size: usize) -> *mut f32 {
     let mut buf = Vec::<f32>::with_capacity(size);
@@ -6,25 +11,14 @@ pub extern "C" fn alloc(size: usize) -> *mut f32 {
     ptr as *mut f32
 }
 
-#[no_mangle]
-pub extern "C" fn process(in_ptr: *mut f32, out_ptr: *mut f32, size: usize, gain: f32) {
-    let in_buf: &mut [f32] = unsafe { std::slice::from_raw_parts_mut(in_ptr, size) };
-    let out_buf: &mut [f32] = unsafe { std::slice::from_raw_parts_mut(out_ptr, size) };
-    for i in 0..size {
-        out_buf[i] = in_buf[i] * gain;
-    }
-}
-
-const PI_2: f32 = ::std::f32::consts::PI * 2.0;
-const STEP: f32 = PI_2 / 44100 as f32;
-
 const TPS: f64 = ::std::f64::consts::PI * 2.0 / 44100 as f64;
 
 struct Synth {
-    time: i64,
+    wave_phase: i64,
     frequency: f64,
-    // attack: f64,
-    // decay: f64,
+    env_time: i64,
+    attack: i64,
+    decay: i64,
     // sustain: f64,
     // release: f64,
     // cutoff: f64,
@@ -33,34 +27,65 @@ struct Synth {
 }
 
 impl Synth {
-    fn new() -> Synth {
+    pub fn new() -> Synth {
         Synth {
-            time: 0,
+            wave_phase: 0,
+            env_time: 0,
+            attack: 0,
+            decay: 44100,
             frequency: 440.0,
             gain: 0.5,
         }
     }
 
-    fn process(&mut self, out_ptr: *mut f32, size: usize) {
+    pub fn process(&mut self, out_ptr: *mut f32, size: usize) {
         let out_buf: &mut [f32] = unsafe { std::slice::from_raw_parts_mut(out_ptr, size) };
         for i in 0..size {
-            out_buf[i] =
-                (((i as f64 + self.time as f64) * TPS * self.frequency).sin() * self.gain) as f32
+            if self.env_time < self.decay {
+                let v = self.sine_wave(self.frequency, self.wave_phase);
+                let g = self.gain * ((self.decay - self.env_time) as f64 / self.env_time as f64);
+                out_buf[i] = (v * g) as f32;
+                self.wave_phase += 1;
+                self.env_time += 1;
+            } else {
+                out_buf[i] = 0.0;
+            }
         }
-        self.time += size as i64
+    }
+
+    pub fn env_start(&mut self) {
+        self.env_time = 0;
+    }
+
+    fn sine_wave(&self, frequency: f64, phase: i64) -> f64 {
+        ((phase as f64) * TPS * frequency).sin()
     }
 }
 
-static mut synth: Synth = Synth::new();
+lazy_static! {
+    static ref SYNTH: Mutex<Synth> = Mutex::new(Synth::new());
+}
 
 #[no_mangle]
-pub extern "C" fn sine_wave(out_ptr: *mut f32, size: usize, _time: i32, freq: f32, gain: f32) {
-    synth.frequency = freq as f64;
-    synth.gain = gain as f64;
+pub extern "C" fn process(out_ptr: *mut f32, size: usize) {
+    let mut synth = SYNTH.lock().unwrap();
     synth.process(out_ptr, size);
-    // let out_buf: &mut [f32] = unsafe { std::slice::from_raw_parts_mut(out_ptr, size) };
-    // for i in 0..size {
-    //     out_buf[i] = ((i as f32 + time as f32) * STEP * freq).sin() as f32 * gain
-    // }
-    // time + size as i32
+}
+
+#[no_mangle]
+pub extern "C" fn set_frequency(frequency: f32) {
+    let mut synth = SYNTH.lock().unwrap();
+    synth.frequency = frequency as f64;
+}
+
+#[no_mangle]
+pub extern "C" fn set_gain(gain: f32) {
+    let mut synth = SYNTH.lock().unwrap();
+    synth.gain = gain as f64;
+}
+
+#[no_mangle]
+pub extern "C" fn trigger() {
+    let mut synth = SYNTH.lock().unwrap();
+    synth.env_start()
 }
