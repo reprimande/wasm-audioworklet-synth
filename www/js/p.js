@@ -7,23 +7,23 @@ class MyProcessor extends AudioWorkletProcessor {
       },
       {
         name: 'gain',
-        defaultValue: 0.5
+        defaultValue: 1
       },
       {
         name: 'cutoff',
-        defaultValue: 2000
+        defaultValue: 1000
       },
       {
         name: 'q',
-        defaultValue: 0.5
+        defaultValue: 20
       },
       {
         name: 'decay',
-        defaultValue: 0.5
+        defaultValue: 0.2
       },
       {
         name: 'amount',
-        defaultValue: 0.5
+        defaultValue: 0.2
       }
     ]
   }

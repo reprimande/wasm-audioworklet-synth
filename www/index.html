@@ -2,18 +2,50 @@
 <html>
   <head>
     <script src="https://g200kg.github.io/webaudio-controls/webaudio-controls.js" ></script>
+    <style>
+     .container {
+       padding: 10px;
+     }
+     .controller {
+       display: flex;
+       margin: 10px;
+     }
+     .parts {
+       width: 100px;
+     }
+    </style>
   </head>
   <body>
-    <div>
-      <div>
-        <webaudio-keyboard id="key" width="600" height="100" min="24" keys="36"></webaudio-keyboard>
+    <div class="container">
+      <h1>WebAssembly / Rust Bass Synthesizer</h1>
+      <div class="controller">
+        <div class="parts">
+          <p>Auto Play!</p>
+          <webaudio-switch id="auto-play" value="0"></webaudio-switch>
+        </div>
+        <div class="parts">
+          <p>CutOff</p>
+          <webaudio-knob id="cutoff" diameter="48" min="0" max="5000" value="1500"></webaudio-knob>
+        </div>
+        <div class="parts">
+          <p>Resonance</p>
+          <webaudio-knob id="q" diameter="48" value="50"></webaudio-knob>
+        </div>
+        <div class="parts">
+          <p>Env Mod</p>
+          <webaudio-knob id="amount" diameter="48" value="40"></webaudio-knob>
+        </div>
+        <div class="parts">
+          <p>Decay</p>
+          <webaudio-knob id="decay" diameter="48" value="20"></webaudio-knob>
+        </div>
+        <div class="parts">
+          <p>Volume</p>
+          <webaudio-knob id="gain" diameter="48" value="100"></webaudio-knob>
+        </div>
       </div>
       <div>
-        <webaudio-knob id="cutoff" diameter="48" min="0" max="10000"></webaudio-knob>
-        <webaudio-knob id="q" diameter="48"></webaudio-knob>
-        <webaudio-knob id="amount" diameter="48"></webaudio-knob>
-        <webaudio-knob id="decay" diameter="48"></webaudio-knob>
-        <webaudio-knob id="gain" diameter="48"></webaudio-knob>
+        <webaudio-keyboard id="key" width="600" height="100" min="12" keys="48"></webaudio-keyboard>
       </div>
     </dic>
     <script src="js/a.js?t=10"></script>
