@@ -6,11 +6,23 @@ class MyProcessor extends AudioWorkletProcessor {
         defaultValue: 440.0
       },
       {
-        name: 'onoff',
-        defaultValue: 0
+        name: 'gain',
+        defaultValue: 0.5
       },
       {
-        name: 'gain',
+        name: 'cutoff',
+        defaultValue: 2000
+      },
+      {
+        name: 'q',
+        defaultValue: 0.5
+      },
+      {
+        name: 'decay',
+        defaultValue: 0.5
+      },
+      {
+        name: 'amount',
         defaultValue: 0.5
       }
     ]
@@ -35,8 +47,9 @@ class MyProcessor extends AudioWorkletProcessor {
             this._outPtr,
             this._size
           )
-          this._time = 0
         })
+      } else if (e.data.type === 'trigger') {
+        this._wasm.exports.trigger()
       }
     }
   }
@@ -45,21 +58,17 @@ class MyProcessor extends AudioWorkletProcessor {
     if (!this._wasm) {
       return true
     }
-    let input = inputs[0]
-    let output = outputs[0]
-    // let gain = parameters.gain
-    for (let channel = 0; channel < input.length; ++channel) {
-      let inputChannel = input[channel]
-      let outputChannel = output[channel]
-      this._inBuf.set(inputChannel)
+    this._wasm.exports.set_frequency(parameters.freq[0])
+    this._wasm.exports.set_gain(parameters.gain[0])
+    this._wasm.exports.set_cutoff(parameters.cutoff[0])
+    this._wasm.exports.set_q(parameters.q[0])
+    this._wasm.exports.set_decay(parameters.decay[0])
+    this._wasm.exports.set_amount(parameters.amount[0])
 
-      this._time = this._wasm.exports.sine_wave(
-        this._outPtr,
-        this._size,
-        this._time, // TODO
-        parameters.freq[0],
-        parameters.gain[0] * parameters.onoff[0]
-      )
+    let output = outputs[0]
+    for (let channel = 0; channel < output.length; ++channel) {
+      let outputChannel = output[channel]
+      this._wasm.exports.process(this._outPtr, this._size)
       outputChannel.set(this._outBuf)
     }
 
