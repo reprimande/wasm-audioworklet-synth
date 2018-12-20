@@ -65,13 +65,8 @@ impl Synth {
             out_buf[i] = filtered[i]
         }
         for i in 0..size {
-            let t = (self.env_time + (i as i64)) as f64;
-            if t < dur {
-                let g = self.gain * self.env_val(i) * 0.0001;
-                out_buf[i] *= g as f32;
-            } else {
-                out_buf[i] = 0.0;
-            }
+            let g = self.gain * self.env_val(i);
+            out_buf[i] *= g as f32;
         }
         if ((self.env_time as f64) < dur) {
             self.env_time += size as i64;
@@ -88,7 +83,7 @@ impl Synth {
         match t {
             0.0 => 0.0,
             x if x >= dur => 0.0,
-            _ => dur - t / t,
+            _ => dur - t / dur,
         }
     }
 
@@ -111,7 +106,7 @@ impl Synth {
         };
 
         for i in 0..input.len() {
-            let cutoff = self.cutoff + self.amount * 1000.0; // * self.env_val(i);
+            let cutoff = self.cutoff + self.amount * 1000.0 * self.env_val(i);
 
             let omega = 2.0 * (PI as f32) * (cutoff as f32) / 44100.0;
             let alpha = omega.sin() / (2.0 * (_q as f32));
