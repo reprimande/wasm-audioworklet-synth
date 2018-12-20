@@ -3,7 +3,15 @@ class MyProcessor extends AudioWorkletProcessor {
     return [
       {
         name: 'freq',
-        defaultValue: 440
+        defaultValue: 440.0
+      },
+      {
+        name: 'onoff',
+        defaultValue: 0
+      },
+      {
+        name: 'gain',
+        defaultValue: 0.5
       }
     ]
   }
@@ -27,8 +35,7 @@ class MyProcessor extends AudioWorkletProcessor {
             this._outPtr,
             this._size
           )
-
-          this._freq = 440
+          this._time = 0
         })
       }
     }
@@ -38,7 +45,6 @@ class MyProcessor extends AudioWorkletProcessor {
     if (!this._wasm) {
       return true
     }
-
     let input = inputs[0]
     let output = outputs[0]
     // let gain = parameters.gain
@@ -46,9 +52,14 @@ class MyProcessor extends AudioWorkletProcessor {
       let inputChannel = input[channel]
       let outputChannel = output[channel]
       this._inBuf.set(inputChannel)
-      // this._wasm.exports.process(this._inPtr, this._outPtr, this._size, 0.1)
 
-      this._wasm.exports.sine_wave(this._outPtr, this._size, parameters.freq)
+      this._time = this._wasm.exports.sine_wave(
+        this._outPtr,
+        this._size,
+        this._time, // TODO
+        parameters.freq[0],
+        parameters.gain[0] * parameters.onoff[0]
+      )
       outputChannel.set(this._outBuf)
     }
 

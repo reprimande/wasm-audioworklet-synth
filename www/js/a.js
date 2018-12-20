@@ -11,8 +11,13 @@ ctx.audioWorklet.addModule('js/p.js?t=' + new Date().getTime()).then(() => {
 
   const key = document.getElementById('key')
   key.addEventListener('change', e => {
-    console.log(e.note[1])
-    n.freq = 440.0 * Math.pow(2.0, (e.note[1] - 69) / 12)
-    console.log(n.freq)
+    n.parameters.get('freq').value =
+      440.0 * Math.pow(2.0, (e.note[1] - 69) / 12)
+    n.parameters.get('onoff').value = e.note[0]
+  })
+
+  const gain = document.getElementById('gain')
+  gain.addEventListener('input', e => {
+    n.parameters.get('gain').value = e.target.value * 0.01
   })
 })
