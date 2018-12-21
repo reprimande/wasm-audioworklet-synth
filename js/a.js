@@ -3,7 +3,7 @@ ctx.audioWorklet.addModule('js/p.js?t=' + new Date().getTime()).then(() => {
   const n = new AudioWorkletNode(ctx, 'my-processor')
   n.connect(ctx.destination)
 
-  fetch('wasm/wasm_audioworklet.wasm?t=' + new Date().getTime())
+  fetch('wasm/wasm_audioworklet_synth.wasm?t=' + new Date().getTime())
     .then(r => r.arrayBuffer())
     .then(r => n.port.postMessage({ type: 'loadWasm', data: r }))
 
