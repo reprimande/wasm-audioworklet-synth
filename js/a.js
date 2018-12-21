@@ -23,7 +23,7 @@ ctx.audioWorklet.addModule('js/p.js?t=' + new Date().getTime()).then(() => {
 
   const q = document.getElementById('q')
   q.addEventListener('input', e => {
-    n.parameters.get('q').value = e.target.value * 0.5
+    n.parameters.get('q').value = e.target.value * 0.1
   })
 
   const amount = document.getElementById('amount')

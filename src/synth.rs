@@ -1,7 +1,5 @@
 use std::f64::consts::PI;
 
-const TPS: f64 = PI * 2.0 / 44100 as f64;
-
 pub struct Synth {
     pub frequency: f64,
     pub decay: f64,
@@ -36,19 +34,18 @@ impl Synth {
     }
 
     pub fn process(&mut self, out_ptr: *mut f32, size: usize) {
-        let out_buf: &mut [f32] = unsafe { std::slice::from_raw_parts_mut(out_ptr, size) };
-        let dur = self.decay * 44100.0;
-
         let wave_buf = self.generate_wave_buf(size);
         let filtered_buf = self.low_pass_filter(wave_buf);
         let amplified_buf = self.amplify(filtered_buf);
+
+        let out_buf: &mut [f32] = unsafe { std::slice::from_raw_parts_mut(out_ptr, size) };
         for i in 0..size {
-            out_buf[i] = 0.1 * amplified_buf[i] as f32
+            out_buf[i] = amplified_buf[i] as f32
         }
 
         self.env_time = match self.env_time {
             -1 => -1,
-            x if (x as f64) < dur => x + size as i64,
+            x if (x as f64) < self.decay * 44100.0 => x + size as i64,
             _ => -1
         }
     }
@@ -64,16 +61,12 @@ impl Synth {
                 let dur = self.decay * 44100.0;
                 let t = (self.env_time + offset as i64) as f64;
                 match t {
-                    0.0 => 0.0,
+                    x if x == 0.0 => 0.0,
                     x if x >= dur => 0.0,
                     _ => dur - t / dur,
                 }
             }
         }
-    }
-
-    fn sine_wave(&self, frequency: f64, phase: i64) -> f64 {
-        ((phase as f64) * TPS * frequency).sin()
     }
 
     fn sawtooth_wave(&self, frequency: f64, phase: i64) -> f64 {
@@ -105,7 +98,7 @@ impl Synth {
     fn low_pass_filter(&mut self, input: [f64; 128]) -> [f64; 128] {
         let mut output: [f64; 128] = [0.0; 128];
         let _q = match self.q {
-            0.0 => 0.01,
+            x if x == 0.0 => 0.01,
             _ => self.q,
         };
 
