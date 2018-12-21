@@ -35,6 +35,8 @@ impl Synth {
 
     pub fn process(&mut self, out_ptr: *mut f32, size: usize) {
         let wave_buf = self.generate_wave_buf(size);
+
+
         let filtered_buf = self.low_pass_filter(wave_buf);
         let amplified_buf = self.amplify(filtered_buf);
 
@@ -63,7 +65,7 @@ impl Synth {
                 match t {
                     x if x == 0.0 => 0.0,
                     x if x >= dur => 0.0,
-                    _ => dur - t / dur,
+                    _ => (dur - t) / dur,
                 }
             }
         }
