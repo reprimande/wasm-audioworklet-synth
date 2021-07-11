@@ -11,7 +11,8 @@ if (ctx.audioWorklet === undefined) {
       .then(r => n.port.postMessage({ type: 'loadWasm', data: r }))
 
     const key = document.getElementById('key')
-    key.addEventListener('change', e => {
+    key.addEventListener('change', async (e) => {
+      await ctx.resume()
       n.parameters.get('freq').value =
         440.0 * Math.pow(2.0, (e.note[1] - 69) / 12)
       if (e.note[0] === 1) {
@@ -45,7 +46,8 @@ if (ctx.audioWorklet === undefined) {
     })
 
     const autoPlay = document.getElementById('auto-play')
-    autoPlay.addEventListener('change', e => {
+    autoPlay.addEventListener('change', async (e) => {
+      await ctx.resume()
       if (e.target.value === 1) {
         start()
       } else {
